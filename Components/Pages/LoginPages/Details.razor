@@ -1,0 +1,47 @@
+﻿@page "/logins/details"
+@inject DatingAppModelToDatabase.Data.DatingAppContext DB
+@using DatingAppModelToDatabase.Models
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h4>Login</h4>
+    <hr />
+    @if (login is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">LoginName</dt>
+            <dd class="col-sm-10">@login.LoginName</dd>
+            <dt class="col-sm-2">Password</dt>
+            <dd class="col-sm-10">@login.Password</dd>
+        </dl>
+        <div>
+            <a href="@($"/logins/edit?id={login.Id}")">Edit</a> |
+            <a href="@($"/logins")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    Login? login;
+
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        login = await DB.Logins.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (login is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

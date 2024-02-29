@@ -1,0 +1,23 @@
+﻿@page "/logins"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject DatingAppModelToDatabase.Data.DatingAppContext DB
+@using DatingAppModelToDatabase.Models
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="logins/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="DB.Logins">
+    <PropertyColumn Property="login => login.LoginName" />
+    <PropertyColumn Property="login => login.Password" />
+
+    <TemplateColumn Context="login">
+        <a href="@($"logins/edit?id={login.Id}")">Edit</a> |
+        <a href="@($"logins/details?id={login.Id}")">Details</a> |
+        <a href="@($"logins/delete?id={login.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>

@@ -1,0 +1,91 @@
+﻿@page "/Logins/edit"
+@inject DatingAppModelToDatabase.Data.DatingAppContext DB
+@using DatingAppModelToDatabase.Models
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h4>Login</h4>
+<hr />
+@if (Login is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Login" OnValidSubmit="UpdateLogin" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <input type="hidden" name="Login.Id" value="@Login.Id" />
+                <div class="mb-3">
+                    <label for="loginname" class="form-label">LoginName:</label>
+                    <InputText id="loginname" @bind-Value="Login.LoginName" class="form-control" />
+                    <ValidationMessage For="() => Login.LoginName" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password:</label>
+                    <InputText id="password" @bind-Value="Login.Password" class="form-control" />
+                    <ValidationMessage For="() => Login.Password" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/logins">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public Login? Login { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Login ??= await DB.Logins.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (Login is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see https://aka.ms/RazorPagesCRUD.
+    public async Task UpdateLogin()
+    {
+        DB.Attach(Login!).State = EntityState.Modified;
+
+        try
+        {
+            await DB.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!LoginExists(Login!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/logins");
+    }
+
+    bool LoginExists(int id)
+    {
+        return DB.Logins.Any(e => e.Id == id);
+    }
+}
